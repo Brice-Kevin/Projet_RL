@@ -4,17 +4,12 @@ author: "réalisé par LIEPO BRICE - KEVIN & ROA SERRANO WALTER"
 output: pdf_document
 ---
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE, tidy.opts=list(width.cutoff=60))
 library(MASS)
 library(knitr)
 library(lmtest)
 library(car)
 library(tidyverse)
-```
-
-```{r global_options, include = FALSE}
-knitr::opts_chunk$set(message=FALSE, 
-tidy.opts=list(width.cutoff=60)) 
 ```
 
 ## INTRODUCTION
@@ -29,8 +24,8 @@ Dans le cadre du module info0806, nous sommes ammenés à realiser une regressio
 
 ### 1. PRÉPARATION DES DONNÉES
 
-Comme annoncer précédemment, nous allons utiliser le jeu de données "cpus", présent dans un des packages R, du nom de MASS. Nous allons effectuer la recupération de ces données et leur mise en forme afin de les utiliser
-```{r message=FALSE, warning=FALSE}
+Comme annoncé précédemment, nous allons utiliser le jeu de données "cpus", présent dans un des packages R, du nom de MASS. Nous allons effectuer la recupération de ces données et leur mise en forme afin de les utiliser
+```{r}
 data(cpus)
 cpus <- data.frame(cpus,row.names="name")
 attach(cpus)
@@ -48,7 +43,7 @@ Ce jeu de données resume les performances relatives et les caractéristiques de
 - chmin : nombre minimum de canaux;
 - chmax : nombre maximum de canaux;
 - perf : performances publiées sur un mix de référence par rapport à un IBM 370 / 158-3;
-- estperf : performances estimées (par Ein-Dor & Feldmesser);
+- estperf : performances estimées (par Ein-Dor & Feldmesser).
 
 Le contenu de ces colonnes se resume comme suit :
 ```{r}
@@ -68,20 +63,21 @@ cpus$estperf <- NULL
 ### 3. CHOIX DE VARIABLES
 
 Pour notre regression linéaire multiple nous avons choisi la variable "perf" comme varible expliquée. En effet nous souhaitons expliquer la performance des processeurs en fonction des autres variables.
-Le tableau de correlation suivant nous montrera que la variable "perf" est fortement corrélé aux autres variables :
-```{r message=FALSE, warning=FALSE}
-cor(cpus)
+Le tableau et le graphe de correlation suivants nous montreront que, la variable "perf" est la plus corrélée aux autres variables :
+```{r}
+kable(cor(cpus))
+plot(cpus)
 ```
 
 ## II. RÉGRESSION LINÉAIRE MULTIPLE
 
 ### 1. APPLICATION DE LA MÉTHODE DESCENDANTE
 
-Nous allons utiliser une méthode descendante en se servant de la fonction lm(), comme en régression linéaire simple. Dans la fonction lm, le point indique qu’on souhaite régresser "perf" sur toutes les autres variables du jeu de données. 
+Nous allons utiliser une méthode descendante en se servant de la fonction lm(), comme en régression linéaire simple. Dans la fonction lm, le point, placé après le symbole "~", indique qu’on souhaite régresser "perf" sur toutes les autres variables du jeu de données. 
 
 Le critère utilisé par défaut dans R est le critère AIC (pour “An Information Criterion”, proposé par Akaike). La fonction "extractAIC" permet de minimiser ce critère.
 
-La fonction summary() permet de produire les sorties pour chaque regression.
+La fonction summary() permet de produire les sorties pour notre regression.
 ```{r}
 summary(perf.lm <- lm(formula=perf~.,data=cpus))
 extractAIC(perf.lm)
@@ -89,7 +85,7 @@ extractAIC(perf.lm)
 
 Les informations données par la fonction summary() concernent :
 
-- Les résidus (maximum, minimum, quartiles);
+- Les résidus (maximum, minimum, moyenne, quartiles);
 - Les coefficients estimés : Les estimations (Estimate), l’écart-type estimé des estimateurs correspondants (Std. Error), la valeur de la statistique de test (t value) et la p-value (Pr(>|t|)) associées aux tests (probabilité que le coefficient soit significativement différent de zéro);
 - La qualité d’adéquation du modèle : une estimation de l’écart-type du terme d’erreur (Residual standard error), la valeur du R2 (Multiple R-squared) et celle du R2 ajusté (Adjusted R-squared), et enfin la valeur de la statistique de test (F-statistic : testant la significativité globales des variables), son degré de liberté et la p-value du test de Fisher de significativité du modèle.
 
@@ -99,7 +95,7 @@ summary(perf.lm <- update(perf.lm,.~.-chmin))
 extractAIC(perf.lm)
 ```
 
-On constate que l’AIC et l'ecart type ont légerement diminué. Nous conservons donc ce model pour l'instant.
+Nous constatons que l’AIC et l'ecart type ont légerement diminué. Ce qui signifie que ce modèle est plus efficace que le précédent. Nous conservons donc ce model pour l'instant.
 
 Nous allons retirer ensuite la variable dont le coefficient est le moins significatif, à savoir la variable "syct".
 ```{r}
@@ -107,16 +103,15 @@ summary(perf.lm<-update(perf.lm,.~.-syct))
 extractAIC(perf.lm)
 ```
 
-On constate que l’AIC a augmenté et l’écart-type estimé des résidus est passé de 59.86 à 60.86.
-
-Nous allons par conséquent conserver le modèle contenant la variable "syct".
+Nous constatons que l’AIC a augmenté et l’écart-type estimé des résidus est passé de 59.86 à 60.86. e qui signifie que ce modèle est moins efficace que le précédent. Nous allons par conséquent conserver le modèle contenant la variable "syct" et afficher par la meme occasion les coefficiant de la droite.
 ```{r}
 summary(perf.lm<-lm(formula = perf ~ syct + mmin + mmax + cach + chmax, data = cpus))
+coef(perf.lm)
 ```
 
 ### 2. ETUDE DES RESIDUS
 
-Nous allons recupérer et afficher sous forme d'histograme et de graphes l'ensemble des résidus, afin d'observer si les conditions d'indépendance, d'homoscédasticité (même variance) et de normalité sont respectés. Puis vérifier que ces residus peuvent suivre la loi normale. 
+Nous allons recupérer et afficher sous forme d'histograme et de graphes l'ensemble des résidus, afin d'observer si les conditions d'indépendance, d'homoscédasticité (même variance) et de normalité sont respectés. Mais aussi vérifier que ces residus peuvent suivre la loi normale. 
 
 Ces représentation sont, respectivement, les suivantes :
 
@@ -149,11 +144,13 @@ plot(perf.lm$fitted.value,perf.lm$residuals,main="Résidus")
 abline(h=0,col="magenta")
 ```
 
-Nous remarquons que les résidus sont repartis, de manière relativement indépendantes, de part et d'autre de la droite d'équation y=0. 
+Nous constatons dans un premier temps, grace aux deux premier histogramme, que les résidus suivent bel et bien la loi normale.
+
+Nous remarquons aussi que les résidus sont repartis, de manière relativement indépendantes, de part et d'autre de la droite d'équation y=0. 
 
 Si les résidus n'était pas répartis de manière relativement indépendantes, de part-et d'autre de la droite d'équation y=0, il y aurait eu un problème (corrélation(s), hétéroscédasticité, ...) que l'on allait devoir corriger avant de pouvoir interpréter un résultat.
 
-Nous remarquons aussi une diminution des résidus (négatifs) lorsque la mémoire principale minimale en kilo-octets (mmin), le nombre maximum de canaux (chmax), ou la valeur prédite augmentent.
+De plus, nous remarquons une diminution des résidus (négatifs) lorsque la mémoire principale minimale en kilo-octets (mmin), le nombre maximum de canaux (chmax), ou la valeur prédite augmentent.
 
 Pour finir nous allons afficher :
 
@@ -171,14 +168,14 @@ qqnorm(normed_res, xlim = range(normed_res), ylim = range(normed_res))
 abline(0, 1, col = "magenta", lwd = 2)
 ```
 
-Nous pouvons representer l'indépendence ou l’autocorrélation des résidus grace àa l'instruction suivante :
+Nous pouvons representer l'indépendence ou l’autocorrélation des résidus grace à l'instruction suivante :
 ```{r}
 acf(perf.lm$residuals,ci=0.99)
 ```
 
 ### 3. PRÉDICTION 
 
-Nous allons afficher les valeurs prédites par rapport aux valeurs normales
+Nous allons afficher les valeurs prédites par rapport aux valeurs normales.
 ```{r}
 plot(perf.lm$fitted.values, cpus$perf)
 ```
@@ -193,10 +190,11 @@ Par conséquent, si la performance (perf) est comprise dans l’intervalle [191.
 ## III. TESTS
 
 Nous allons réaliser des test statistiques afin de valider les hypothèses. On teste tout d’abord l’hypothèse de linéarité :
-
 ```{r}
 raintest(perf.lm)
 ```
+ 
+Nous pouvpons en conclure que nous avons une adequation du modèle.
 
 ### 1. TEST DE NORMALITÉ DE SHAPIRO
 
