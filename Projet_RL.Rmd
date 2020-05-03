@@ -187,38 +187,71 @@ predict(perf.lm,data.frame(syct=125, mmin=256, mmax=6000, cach=256, chmax=128),i
 
 Par conséquent, si la performance (perf) est comprise dans l’intervalle [191.76; 466.11], il n’y a pas de contradiction avec le modèle.
 
-## III. TESTS
+## III. TESTS STATISTIQUES
 
-Nous allons réaliser des test statistiques afin de valider les hypothèses. On teste tout d’abord l’hypothèse de linéarité :
+Nous allons réaliser des tests statistiques afin de valider les hypothèses :
+
+La p-value est souvent utilisée dans les tests d'hypothèses, ce test nous permet de rejeter, ou non, une hypothèse nulle. Elle représente la probabilité de faire une erreur de type 1 ou « faux positif », ou de rejeter l'hypothèse nulle si elle est vrai.
+
+Plus la valeur p-value est petite, plus la probabilité de faire une erreur en rejetant l'hypothèse nulle est faible. Une valeur limite de 0,05 est souvent utilisée. Autrement dit, vous pouvez rejeter l'hypothèse nulle si la p-valeur est inférieure à 0,05.
+
+### 1. TEST D'ADÉQUATION OU DE LINÉARITÉ
+
+Pour conclure à la non-linéarité du modèle de régression, on préconise le test de Rainbow : si p-valeur < 0.05, on rejette la linéarité du modèle.
 ```{r}
 raintest(perf.lm)
 ```
  
-Nous pouvpons en conclure que nous avons une adequation du modèle.
+On a obtenu une p-value < 2.2e-16 donc on peut rejeter l'hypothèse nulle.
 
-### 1. TEST DE NORMALITÉ DE SHAPIRO
+Le résultat donne une p-valeur < 0.05 donc, nous pouvons en conclure qu'un modèle de régression non-linéaire est plus adapté aux données.
+
+### 2. TEST DE NORMALITÉ DE SHAPIRO
 
 En statistique, le test de Shapiro–Wilk teste l'hypothèse nulle selon laquelle un échantillon est issu d'une population normalement distribuée. En d'autre terme, le test de Shapiro-Wilk permet de savoir si une série de données suit une loi normale. Il a été publié en 1965 par Samuel Sanford Shapiro et Martin.
 ```{r}
 shapiro.test(perf.lm$residuals)
 ```
 
-### 2. TEST D'HOMOGÉNÉITÉ DES VARIANCES DE GOLDFELD-QUANDT
+Ci-dessus, la p-value est significative parce que il est beaucoup plus < à 0,05 donc, les résidus ne suivent pas une loi normale.
+
+
+### 3. TEST D’HOMOSCÉDASTICITÉ DES VARIANCES DE GOLDFELD-QUANDT
 
 Le test de Goldfeld et Quandt (formulé en 1965) est un test statistique, très utilisé en économétrie dans le cadre d'un modèle linéaire multiple estimé par la méthode des moindres carrés afin de savoir si les perturbations sont hétéroscédastiques ou homoscédastiques. Ce test s'appuie sur la loi de Fisher.
 ```{r}
 gqtest(perf.lm)
 ```
 
-### 3. TESTS D'INDÉPENDANCE ET D'AUTOCORELATION DES RÉSIDUS DE DURBIN WATSON
+L'application du test de Goldfeld-Quandt permet de vérifier l'homogénéité des variances des résidus.
+
+Les résultats donne une p-value > 0,05 par conséquent l'homogénéité des résidus est respectée.
+
+### 4. TESTS D'INDÉPENDANCE ET D'AUTOCORELATION DES RÉSIDUS DE DURBIN WATSON
+
+Le test de Durbin-Watson est un test statistique destiné à tester l'autocorrélation des résidus dans un modèle de régression linéaire. Il a été proposé en 1950 et 1951 par James Durbin et Geoffrey Watson.
+
+Il permet de détecter une auto-corrélation des erreurs d'ordre un et il repose sur l'estimation d'un modèle autorégressif de premier ordre pour les résidus estimés.
 ```{r}
 dwtest(perf.lm)
 ```
 
-### 4. TEST DE COLINÉARITÉ FORTE DU MODELE 
+Dans l'application du test de Durbin-Watson si la p-value est > 0,05 l'independance des résidus est respectée mais nos résultats donnent une p-value de 1.126e-09 qui beaucoup plus < à 0,05 par conséquent l'indépendance des résidus est rejetée.
+
+Nous vérifions enfin qu'il y a colinéarité forte dans le modèle, c'est-à-dire que les variables explicatives son linéairement dépendantes.
+
+### 5. TEST DE COLINÉARITÉ FORTE DU MODELE 
+
+Dans une régression, la multicolinéarité est un problème qui survient lorsque certaines variables de prévision du modèle mesurent le même phénomène.
+
+One dit que des variables sont s'il existe une relation linéaire entre elles. Une erreur fréquente est de confondre multicolinéarité et corrélation. Si des variables colinéaires sont de facto fortement corrélées entre elles, deux variables corrélées ne sont pas forcément colinéaires. En termes non statistiques, il y a colinéarité lorsque deux ou plusieurs variables mesurent la même chose.
+
+Pour étudier la colinéarité des variables explicatives l’approche la plus classique consiste à examiner les facteurs d’inflation de la variance (FIV) ou variance inflation factor (VIF). La fonction vif() de la librairie car permet de comparer la colinéarité des variables. Les valeurs renvoyées par vif doivent être bas sinon les variables ont tendance à évoluer dans la même direction.
 ```{r}
 vif(perf.lm)
 ```
+
+Dans nos résultats les valeurs des VIF (Variance Inflation Factors) des variables explicatives étant inférieures à 10 par conséquent les variables ne présentent pas de forte colinéarité.
 
 ## CONCLUSION
 
@@ -227,4 +260,5 @@ Pour conclure, ce projet, réalisé dans le cadre du module info0806, qui avait 
 - Determiner l'impact des variables explicatives sur les prédictions de la variable expliquée;
 - Appliquer les differentes fonctions relatives à la réalisation d'une régression linéaire multiple;
 - Comprendre les differents paramètres associés au resultat des differentes fonctions.
+- On a constaté par conséquent que nous ne devrions pas nous fier à une seule approche pour évaluer la normalité donc, pour s'assurer, une meilleure stratégie consiste à combiner l’inspection visuelle et le test statistique.
 
