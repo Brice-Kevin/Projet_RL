@@ -213,8 +213,7 @@ En statistique, le test de Shapiro–Wilk teste l'hypothèse nulle selon laquell
 shapiro.test(perf.lm$residuals)
 ```
 
-Ci-dessus, la p-value est significative parce que il est beaucoup plus < à 0,05 donc, les résidus ne suivent pas une loi normale.
-
+Ci-dessus, la p-value est significative, donc les résidus ne suivent pas une loi normale.
 
 ### 3. TEST D’HOMOSCÉDASTICITÉ DES VARIANCES DE GOLDFELD-QUANDT
 
@@ -225,7 +224,7 @@ gqtest(perf.lm)
 
 L'application du test de Goldfeld-Quandt permet de vérifier l'homogénéité des variances des résidus.
 
-Les résultats donne une p-value > 0,05 par conséquent l'homogénéité des résidus est respectée.
+Les résultats donnent une p-value > 0,05 par conséquent l'homogénéité des résidus est respectée.
 
 ### 4. TESTS D'INDÉPENDANCE ET D'AUTOCORELATION DES RÉSIDUS DE DURBIN WATSON
 
@@ -236,9 +235,9 @@ Il permet de détecter une auto-corrélation des erreurs d'ordre un et il repose
 dwtest(perf.lm)
 ```
 
-Dans l'application du test de Durbin-Watson si la p-value est > 0,05 l'independance des résidus est respectée mais nos résultats donnent une p-value de 1.126e-09 qui beaucoup plus < à 0,05 par conséquent l'indépendance des résidus est rejetée.
+Dans l'application du test de Durbin-Watson si la p-value est > 0,05 l'independance des résidus est respectée. Nos résultats donnent une p-value de 1.126e-09 qui est beaucoup plus inférieur à 0,05 Par conséquent l'indépendance des résidus est rejetée.
 
-Nous vérifions enfin qu'il y a colinéarité forte dans le modèle, c'est-à-dire que les variables explicatives son linéairement dépendantes.
+Nous constatons enfin qu'il y a colinéarité forte dans le modèle, c'est-à-dire que les variables explicatives sont linéairement dépendantes.
 
 ### 5. TEST DE COLINÉARITÉ FORTE DU MODELE 
 
@@ -251,7 +250,7 @@ Pour étudier la colinéarité des variables explicatives l’approche la plus c
 vif(perf.lm)
 ```
 
-Dans nos résultats les valeurs des VIF (Variance Inflation Factors) des variables explicatives étant inférieures à 10 par conséquent les variables ne présentent pas de forte colinéarité.
+Dans nos résultats, les valeurs des VIF (Variance Inflation Factors) des variables explicatives sont inférieures à 10 par conséquent les variables ne présentent pas de forte colinéarité.
 
 ## CONCLUSION
 
@@ -260,5 +259,4 @@ Pour conclure, ce projet, réalisé dans le cadre du module info0806, qui avait 
 - Determiner l'impact des variables explicatives sur les prédictions de la variable expliquée;
 - Appliquer les differentes fonctions relatives à la réalisation d'une régression linéaire multiple;
 - Comprendre les differents paramètres associés au resultat des differentes fonctions.
-- On a constaté par conséquent que nous ne devrions pas nous fier à une seule approche pour évaluer la normalité donc, pour s'assurer, une meilleure stratégie consiste à combiner l’inspection visuelle et le test statistique.
 
