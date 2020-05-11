@@ -1,7 +1,15 @@
 ---
 title: "PROJET INFO0806 - RÉGRESSION LINÉAIRE MULTIPLE SUR LE JEU DE DONNÉES << CPUS >>"
 author: "réalisé par LIEPO BRICE - KEVIN & ROA SERRANO WALTER"
-output: pdf_document
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+language: R
+cran: http://cran.rstudio.com
+output: 
+  pdf_document:
+    toc: true # table of content true
+    toc_depth: 3 # three depths of headings (#, ## and ###)
+editor_options: 
+  chunk_output_type: inline
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE, tidy.opts=list(width.cutoff=60))
@@ -12,19 +20,20 @@ library(car)
 library(tidyverse)
 ```
 
-## INTRODUCTION
+# **INTRODUCTION**
 
 En statistiques, un modèle de régression linéaire est un modèle de régression qui cherche à établir une relation linéaire entre une variable, dite expliquée, et une ou plusieurs variables, dites explicatives.
 
 La régression linéaire multiple est, quant à elle, une méthode de régression mathématique étendant la régression linéaire simple pour décrire les variations d'une variable endogène (expliquée) associée aux variations de plusieurs variables exogènes (explicatives). Par exemple, une analyse de régression multiple peut révéler une relation positive entre la demande de lunettes de soleil et différents caractères démographiques (âge, salaire) des acheteurs de ce produit. La demande augmente et baisse avec les variations de ces caractéristiques.
 
-Dans le cadre du module info0806, nous sommes ammenés à realiser une regression linéaire sur un jeu de données du nom de "cpus", afin de trouver le modèle de régression adéquat.
+Dans le cadre du module info0806, nous sommes ammenés à realiser une régression linéaire sur un jeu de données du nom de "cpus", afin de trouver le modèle de régression adéquat.
 
-## I. PRÉSENTATION ET PRÉPARATION DES DONNÉES
+# **PRÉSENTATION ET PRÉPARATION DES DONNÉES**
 
-### 1. PRÉPARATION DES DONNÉES
+## **PRÉPARATION DES DONNÉES**
 
-Comme annoncé précédemment, nous allons utiliser le jeu de données "cpus", présent dans un des packages R, du nom de MASS. Nous allons effectuer la recupération de ces données et leur mise en forme afin de les utiliser
+Comme annoncé précédemment, nous allons utiliser le jeu de données "cpus", présent dans un des packages R, du nom de MASS. Nous allons effectuer la recupération de ces données et leur mise en forme afin de les utiliser.
+
 ```{r}
 data(cpus)
 cpus <- data.frame(cpus,row.names="name")
@@ -32,7 +41,7 @@ attach(cpus)
 ```
 
 
-### 2. PRÉSENTATION DES DONNÉES
+## **PRÉSENTATION DES DONNÉES**
 
 Ce jeu de données resume les performances relatives et les caractéristiques de 209 processeurs. Les differentes variables sont les suivantes :
 
@@ -46,38 +55,50 @@ Ce jeu de données resume les performances relatives et les caractéristiques de
 - estperf : performances estimées (par Ein-Dor & Feldmesser).
 
 Le contenu de ces colonnes se resume comme suit :
+
+### Resume jeu de données 
 ```{r}
 summary(cpus)
 ```
 
 les dix premiers individus sont les suivants :
+
+### Table des premiers individus 
 ```{r}
 kable(head(cpus,10))
 ```
 
 Nous allons supprimer la dernière variable de notre jeu de données car, après recherche, nous avons constaté que cette variable represente un critère de prédiction déterminé par le travail de Ein-Dor & Feldmesser.
+
+### Supression de la variable "estperf"
+
 ```{r}
 cpus$estperf <- NULL
 ```
 
-### 3. CHOIX DE VARIABLES
+## **CHOIX DE VARIABLES**
 
-Pour notre regression linéaire multiple nous avons choisi la variable "perf" comme varible expliquée. En effet nous souhaitons expliquer la performance des processeurs en fonction des autres variables.
-Le tableau et le graphe de correlation suivants nous montreront que, la variable "perf" est la plus corrélée aux autres variables :
+Pour notre régression linéaire multiple nous avons choisi la variable "perf" comme varible expliquée. En effet nous souhaitons expliquer la performance des processeurs en fonction des autres variables.
+Le tableau et le graphe de corrélation suivants nous montreront que, la variable "perf" est la plus corrélée aux autres variables :
+
+### Table des individus et graphe de corrélation 
+
 ```{r}
 kable(cor(cpus))
 plot(cpus)
 ```
 
-## II. RÉGRESSION LINÉAIRE MULTIPLE
+# **RÉGRESSION LINÉAIRE MULTIPLE**
 
-### 1. APPLICATION DE LA MÉTHODE DESCENDANTE
+## **APPLICATION DE LA MÉTHODE DESCENDANTE**
 
 Nous allons utiliser une méthode descendante en se servant de la fonction lm(), comme en régression linéaire simple. Dans la fonction lm, le point, placé après le symbole "~", indique qu’on souhaite régresser "perf" sur toutes les autres variables du jeu de données. 
 
 Le critère utilisé par défaut dans R est le critère AIC (pour “An Information Criterion”, proposé par Akaike). La fonction "extractAIC" permet de minimiser ce critère.
 
-La fonction summary() permet de produire les sorties pour notre regression.
+La fonction summary() permet de produire les sorties pour notre régression.
+
+### Régression linéaire et AIC avec toutes les variables  
 ```{r}
 summary(perf.lm <- lm(formula=perf~.,data=cpus))
 extractAIC(perf.lm)
@@ -90,6 +111,8 @@ Les informations données par la fonction summary() concernent :
 - La qualité d’adéquation du modèle : une estimation de l’écart-type du terme d’erreur (Residual standard error), la valeur du R2 (Multiple R-squared) et celle du R2 ajusté (Adjusted R-squared), et enfin la valeur de la statistique de test (F-statistic : testant la significativité globales des variables), son degré de liberté et la p-value du test de Fisher de significativité du modèle.
 
 On soustrait à présent la variable "chmin" car son coefficient n'est pas significativement différent de zéro et sa p-valeur est supérieur à 0.3.
+
+### Régression linéaire et AIC sans la variable "chmin" 
 ```{r}
 summary(perf.lm <- update(perf.lm,.~.-chmin))
 extractAIC(perf.lm)
@@ -98,29 +121,31 @@ extractAIC(perf.lm)
 Nous constatons que l’AIC et l'ecart type ont légerement diminué. Ce qui signifie que ce modèle est plus efficace que le précédent. Nous conservons donc ce model pour l'instant.
 
 Nous allons retirer ensuite la variable dont le coefficient est le moins significatif, à savoir la variable "syct".
+
+### Régression linéaire et AIC sans la variable "syct" 
 ```{r}
 summary(perf.lm<-update(perf.lm,.~.-syct))
 extractAIC(perf.lm)
 ```
 
 Nous constatons que l’AIC a augmenté et l’écart-type estimé des résidus est passé de 59.86 à 60.86. e qui signifie que ce modèle est moins efficace que le précédent. Nous allons par conséquent conserver le modèle contenant la variable "syct" et afficher par la meme occasion les coefficiant de la droite.
+
+### Resume et Coefficient du model calibré 
 ```{r}
 summary(perf.lm<-lm(formula = perf ~ syct + mmin + mmax + cach + chmax, data = cpus))
 coef(perf.lm)
 ```
 
-### 2. ETUDE DES RESIDUS
+## **ETUDE DES RESIDUS**
 
 Nous allons recupérer et afficher sous forme d'histograme et de graphes l'ensemble des résidus, afin d'observer si les conditions d'indépendance, d'homoscédasticité (même variance) et de normalité sont respectés. Mais aussi vérifier que ces residus peuvent suivre la loi normale. 
 
-Ces représentation sont, respectivement, les suivantes :
+Les représentations sont, respectivement, les suivantes :
+
+### Histogrammes des résidus 
 
 - Un histogramme des résidus;
 - Un histogramme des résidus avec une courbe pour vérifier si ces residus peuvent suivre la loi normale;
-- La repartition des residus;
-- La repartition des residus par rapport à la mémoire principale minimale en kilo-octets (mmin);
-- La repartition des residus par rapport au nombre maximum de canaux (chmax);
-- La repartition des residus par rapport aux valeurs prédites (fitted value);
 
 ```{r}
 par(mfrow=c(1,2))
@@ -130,6 +155,16 @@ ec_typ <- summary(perf.lm)$sigma
 curve(dnorm(x, 0, ec_typ), from = min(histo$breaks), to = max(histo$breaks), 
     add = TRUE, type = "l", col = "magenta", lwd = 2)
 
+```
+
+### Graphes de répartition des résidus
+
+- La répartition des residus;
+- La répartition des residus par rapport à la mémoire principale minimale en kilo-octets (mmin);
+- La répartition des residus par rapport au nombre maximum de canaux (chmax);
+- La répartition des residus par rapport aux valeurs prédites (fitted value);
+
+```{r}
 par(mfrow=c(2,2))
 plot(perf.lm$residuals,main="Résidus")
 abline(h=0,col="magenta")
@@ -154,8 +189,10 @@ De plus, nous remarquons une diminution des résidus (négatifs) lorsque la mém
 
 Pour finir nous allons afficher :
 
-- La repartition des valeus prédites (en ordonnée) et des valeurs de "perf" (en abscisse);
+- La repartition des valeurs prédites (en ordonnée) et des valeurs de "perf" (en abscisse);
 - La repartition des quantiles.
+
+### Graphes des valeurs prédites et des quantiles 
 ```{r}
 par(mfrow=c(1,2))
 
@@ -168,26 +205,31 @@ qqnorm(normed_res, xlim = range(normed_res), ylim = range(normed_res))
 abline(0, 1, col = "magenta", lwd = 2)
 ```
 
-Nous pouvons representer l'indépendence ou l’autocorrélation des résidus grace à l'instruction suivante :
+
+### Graphe de répresentation de l'independence ou l'autocorrélation des résidus  
 ```{r}
 acf(perf.lm$residuals,ci=0.99)
 ```
 
-### 3. PRÉDICTION 
+## **PRÉDICTION**
 
-Nous allons afficher les valeurs prédites par rapport aux valeurs normales.
+Nous allons afficher les valeurs prédites par rapport aux valeurs normales: 
+
+### Graph des valeurs prédites 
 ```{r}
 plot(perf.lm$fitted.values, cpus$perf)
 ```
 
-Partons du principe que nous avons un nouvel individus. L’intervalle de confiance sur la valeur prédite est donné par l’instruction suivante :
+Partons du principe que nous avons un nouvel individu. L’intervalle de confiance sur la valeur prédite est donné par l’instruction suivante :
+
+### Intervale de confiance sur la valeur prédite
 ```{r}
 predict(perf.lm,data.frame(syct=125, mmin=256, mmax=6000, cach=256, chmax=128),interval="prediction",level=0.95)
 ```
 
 Par conséquent, si la performance (perf) est comprise dans l’intervalle [191.76; 466.11], il n’y a pas de contradiction avec le modèle.
 
-## III. TESTS STATISTIQUES
+# **TESTS STATISTIQUES**
 
 Nous allons réaliser des tests statistiques afin de valider les hypothèses :
 
@@ -195,7 +237,7 @@ La p-value est souvent utilisée dans les tests d'hypothèses, ce test nous perm
 
 Plus la valeur p-value est petite, plus la probabilité de faire une erreur en rejetant l'hypothèse nulle est faible. Une valeur limite de 0,05 est souvent utilisée. Autrement dit, vous pouvez rejeter l'hypothèse nulle si la p-valeur est inférieure à 0,05.
 
-### 1. TEST D'ADÉQUATION OU DE LINÉARITÉ
+## **TEST D'ADÉQUATION OU DE LINÉARITÉ**
 
 Pour conclure à la non-linéarité du modèle de régression, on préconise le test de Rainbow : si p-valeur < 0.05, on rejette la linéarité du modèle.
 ```{r}
@@ -206,7 +248,7 @@ On a obtenu une p-value < 2.2e-16 donc on peut rejeter l'hypothèse nulle.
 
 Le résultat donne une p-valeur < 0.05 donc, nous pouvons en conclure qu'un modèle de régression non-linéaire est plus adapté aux données.
 
-### 2. TEST DE NORMALITÉ DE SHAPIRO
+## **TEST DE NORMALITÉ DE SHAPIRO**
 
 En statistique, le test de Shapiro–Wilk teste l'hypothèse nulle selon laquelle un échantillon est issu d'une population normalement distribuée. En d'autre terme, le test de Shapiro-Wilk permet de savoir si une série de données suit une loi normale. Il a été publié en 1965 par Samuel Sanford Shapiro et Martin.
 ```{r}
@@ -215,7 +257,7 @@ shapiro.test(perf.lm$residuals)
 
 Ci-dessus, la p-value est significative, donc les résidus ne suivent pas une loi normale.
 
-### 3. TEST D’HOMOSCÉDASTICITÉ DES VARIANCES DE GOLDFELD-QUANDT
+## **TEST D’HOMOSCÉDASTICITÉ DES VARIANCES DE GOLDFELD-QUANDT**
 
 Le test de Goldfeld et Quandt (formulé en 1965) est un test statistique, très utilisé en économétrie dans le cadre d'un modèle linéaire multiple estimé par la méthode des moindres carrés afin de savoir si les perturbations sont hétéroscédastiques ou homoscédastiques. Ce test s'appuie sur la loi de Fisher.
 ```{r}
@@ -226,7 +268,7 @@ L'application du test de Goldfeld-Quandt permet de vérifier l'homogénéité de
 
 Les résultats donnent une p-value > 0,05 par conséquent l'homogénéité des résidus est respectée.
 
-### 4. TESTS D'INDÉPENDANCE ET D'AUTOCORELATION DES RÉSIDUS DE DURBIN WATSON
+## **TESTS D'INDÉPENDANCE ET D'AUTOCORELATION DES RÉSIDUS DE DURBIN WATSON**
 
 Le test de Durbin-Watson est un test statistique destiné à tester l'autocorrélation des résidus dans un modèle de régression linéaire. Il a été proposé en 1950 et 1951 par James Durbin et Geoffrey Watson.
 
@@ -239,7 +281,7 @@ Dans l'application du test de Durbin-Watson si la p-value est > 0,05 l'independa
 
 Nous constatons enfin qu'il y a colinéarité forte dans le modèle, c'est-à-dire que les variables explicatives sont linéairement dépendantes.
 
-### 5. TEST DE COLINÉARITÉ FORTE DU MODELE 
+## **TEST DE COLINÉARITÉ FORTE DU MODELE** 
 
 Dans une régression, la multicolinéarité est un problème qui survient lorsque certaines variables de prévision du modèle mesurent le même phénomène.
 
@@ -252,9 +294,9 @@ vif(perf.lm)
 
 Dans nos résultats, les valeurs des VIF (Variance Inflation Factors) des variables explicatives sont inférieures à 10 par conséquent les variables ne présentent pas de forte colinéarité.
 
-## CONCLUSION
+# **CONCLUSION**
 
-Pour conclure, ce projet, réalisé dans le cadre du module info0806, qui avait pour objectif de realiser une regression linéaire sur un jeu de données de notre choix nous a permis de :
+Pour conclure, ce projet, réalisé dans le cadre du module info0806, qui avait pour objectif de realiser une régression linéaire sur un jeu de données de notre choix nous a permis de :
 
 - Determiner l'impact des variables explicatives sur les prédictions de la variable expliquée;
 - Appliquer les differentes fonctions relatives à la réalisation d'une régression linéaire multiple;
