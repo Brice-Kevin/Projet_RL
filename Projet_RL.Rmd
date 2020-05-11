@@ -28,6 +28,25 @@ La régression linéaire multiple est, quant à elle, une méthode de régressio
 
 Dans le cadre du module info0806, nous sommes ammenés à realiser une régression linéaire sur un jeu de données du nom de "cpus", afin de trouver le modèle de régression adéquat.
 
+# **ENVIRONNMENT DE TRAVAIL**
+
+## **LANGAGE R**
+Dans la cadre cet projet nous avons travaillé avec R qui est un langage de programmation open source destiné aux statistiques et à la science des données utilisé largement par les statisticiens, les data miners, data scientists pour l'analyse de données et répresenter ces analyse graphiquement. R dispose d'un très grand nombre de bibliothèques dévéloppées par une communauté de contributeurs qui permettent des ddiverses analyses et d'une grande variété des posibilités pour la répresentation graphique.
+
+## **R STUDIO**
+RStudio est un environnement de développement intégre, gratuit, libre et multiplataforme qui permet de travailler en R, sa founction consiste à faciliter le développement d'applications, il dispose de nombreux outils qui vous permettent le traitement de données et l'analyse statistique ainsi comme la création des scripts, la création des graphes et compiler du code.
+
+## **MARKDOWN**
+Markdown est une langage de balisage léger, son but est d'offrir une syntaxe facile et qui permet de mélanger du code R avec de text pour générer des documents au format HTML, PDF, Word et d'autres. On va l'utiliser pour l'exportation des résultats d'analyse en PDF.
+
+## **PACKAGES UTILISÉS**
+
+- library(MASS) : Contient des fonctions et jeux de données pour prendre en charge Venables et Ripley. Notre jeu de données "cpus" appartient à cette librairie. 
+- library(knitr) : Fournit un outil polyvalent pour la génération de rapports dynamiques en R à l'aide de techniques de programmation littéraire.
+- library(lmtest) : Une collection de tests, d'ensembles de données et d'exemples pour la vérification diagnostique dans les modèles de régression linéaire. En outre, certains outils génériques pour l'inférence dans les modèles paramétriques sont fournis.
+- library(car) : Utilisée pour appliquer une régression linéaire et des tests statistiques
+- library(tidyverse) : C'est une collection d'extensions qui concernent à la data science et qui permet la manipulation des tableaux, la manipulation de variables et la visualisation de données.
+
 # **PRÉSENTATION ET PRÉPARATION DES DONNÉES**
 
 ## **PRÉPARATION DES DONNÉES**
@@ -136,7 +155,7 @@ summary(perf.lm<-lm(formula = perf ~ syct + mmin + mmax + cach + chmax, data = c
 coef(perf.lm)
 ```
 
-## **ETUDE DES RESIDUS**
+## **ÉTUDE DES RÉSIDUS**
 
 Nous allons recupérer et afficher sous forme d'histograme et de graphes l'ensemble des résidus, afin d'observer si les conditions d'indépendance, d'homoscédasticité (même variance) et de normalité sont respectés. Mais aussi vérifier que ces residus peuvent suivre la loi normale. 
 
