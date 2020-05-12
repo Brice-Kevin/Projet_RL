@@ -32,13 +32,13 @@ Dans le cadre du module info0806, nous sommes ammenés à realiser une régressi
 # **ENVIRONNMENT DE TRAVAIL**
 
 ## **LANGAGE R**
-Dans la cadre de ce projet nous avons travaillé avec R qui est un langage de programmation open source destiné aux statistiques et à la science des données utilisé largement par les statisticiens, les data miners, data scientists pour l'analyse de données et répresenter ces analyse graphiquement. R dispose d'un très grand nombre de bibliothèques dévéloppées par une communauté de contributeurs qui permettent des diverses analyses et d'une grande variété de posibilités pour la répresentation graphique.
+Dans le cadre de ce projet nous avons travaillé avec R qui est un langage de programmation open source destiné aux statistiques et à la science des données. Ce langage est largement utilisé par les statisticiens, les data miners, data scientists pour l'analyse de données et la représentation graphique de ces analyses. R dispose d'un très grand nombre de bibliothèques dévéloppées par une communauté de contributeurs qui permettent des diverses analyses et d'une grande variété de posibilités pour la répresentation graphique.
 
 ## **R STUDIO**
-RStudio est un environnement de développement intégre, multiplateforme qui permet de travailler en R. Sa founction consiste à faciliter le développement d'applications et il dispose de nombreux outils qui vous permettent le traitement de données et l'analyse statistique ainsi comme la création des scripts, la création des graphes et compiler du code.
+RStudio est un environnement de développement intégre multiplateforme, qui permet le développement d'applications sous R. Il dispose de nombreux outils qui vous permettent le traitement de données et l'analyse statistique comme la création des scripts, la création des graphes et la compilation du code.
 
 ## **MARKDOWN**
-Markdown est une langage de balisage légé, une syntaxe facile qui permet de mélanger du code R avec du text pour générer des documents au format HTML, PDF, Word et d'autres. On va l'utiliser pour l'exportation des résultats d'analyse en PDF.
+Markdown est un langage de balisage légé, une syntaxe facile qui permet de mélanger du code R avec du text pour générer des documents au format HTML, PDF, Word et d'autres. On va l'utiliser pour l'exportation des résultats d'analyse en PDF.
 
 ## **PACKAGES UTILISÉS**
 
@@ -90,7 +90,7 @@ kable(head(cpus,10))
 
 Nous allons supprimer la dernière variable de notre jeu de données car, après recherche, nous avons constaté que cette variable represente un critère de prédiction déterminé par le travail de Ein-Dor & Feldmesser.
 
-### Supression de la variable "estperf"
+### Suppression de la variable "estperf"
 
 ```{r}
 cpus$estperf <- NULL
@@ -110,15 +110,13 @@ plot(cpus)
 
 # **II. RÉGRESSION LINÉAIRE MULTIPLE**
 
-## **APPLICATION DE LA MÉTHODE DESCENDANTE**
-
 Nous allons utiliser une méthode descendante en se servant de la fonction lm(), comme en régression linéaire simple. Dans la fonction lm, le point, placé après le symbole "~", indique qu’on souhaite régresser "perf" sur toutes les autres variables du jeu de données. 
 
 Le critère utilisé par défaut dans R est le critère AIC (pour “An Information Criterion”, proposé par Akaike). La fonction "extractAIC" permet de minimiser ce critère.
 
 La fonction summary() permet de produire les sorties pour notre régression.
 
-### Régression linéaire et AIC avec toutes les variables  
+### Régression linéaire avec toutes les variables et critère d'AIC   
 ```{r}
 summary(perf.lm <- lm(formula=perf~.,data=cpus))
 extractAIC(perf.lm)
@@ -132,7 +130,7 @@ Les informations données par la fonction summary() concernent :
 
 On soustrait à présent la variable "chmin" car son coefficient n'est pas significativement différent de zéro et sa p-valeur est supérieur à 0.3.
 
-### Régression linéaire et AIC sans la variable "chmin" 
+### Régression linéaire avec toutes les variables et critère d'AIC sans la variable "chmin" 
 ```{r}
 summary(perf.lm <- update(perf.lm,.~.-chmin))
 extractAIC(perf.lm)
@@ -142,7 +140,7 @@ Nous constatons que l’AIC et l'ecart type ont légerement diminué. Ce qui sig
 
 Nous allons retirer ensuite la variable dont le coefficient est le moins significatif, à savoir la variable "syct".
 
-### Régression linéaire et AIC sans la variable "syct" 
+### Régression linéaire avec toutes les variables et critère d'AIC sans la variable "syct" 
 ```{r}
 summary(perf.lm<-update(perf.lm,.~.-syct))
 extractAIC(perf.lm)
@@ -150,7 +148,7 @@ extractAIC(perf.lm)
 
 Nous constatons que l’AIC a augmenté et l’écart-type estimé des résidus est passé de 59.86 à 60.86. e qui signifie que ce modèle est moins efficace que le précédent. Nous allons par conséquent conserver le modèle contenant la variable "syct" et afficher par la meme occasion les coefficiant de la droite.
 
-### Resume et Coefficient du model calibré 
+### Résumé et Coefficient du model calibré 
 ```{r}
 summary(perf.lm<-lm(formula = perf ~ syct + mmin + mmax + cach + chmax, data = cpus))
 coef(perf.lm)
@@ -161,8 +159,6 @@ coef(perf.lm)
 Nous allons recupérer et afficher sous forme d'histograme et de graphes l'ensemble des résidus, afin d'observer si les conditions d'indépendance, d'homoscédasticité (même variance) et de normalité sont respectés. Mais aussi vérifier que ces residus peuvent suivre la loi normale. 
 
 Les représentations sont, respectivement, les suivantes :
-
-### Histogrammes des résidus 
 
 - Un histogramme des résidus;
 - Un histogramme des résidus avec une courbe pour vérifier si ces residus peuvent suivre la loi normale;
@@ -177,7 +173,6 @@ curve(dnorm(x, 0, ec_typ), from = min(histo$breaks), to = max(histo$breaks),
 
 ```
 
-### Graphes de répartition des résidus
 
 - La répartition des residus;
 - La répartition des residus par rapport à la mémoire principale minimale en kilo-octets (mmin);
@@ -212,7 +207,6 @@ Pour finir nous allons afficher :
 - La repartition des valeurs prédites (en ordonnée) et des valeurs de "perf" (en abscisse);
 - La repartition des quantiles.
 
-### Graphes des valeurs prédites et des quantiles 
 ```{r}
 par(mfrow=c(1,2))
 
